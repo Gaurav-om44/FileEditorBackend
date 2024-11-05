@@ -147,13 +147,13 @@ app.post('/process-trr', (req, res) => {
 app.post('/process-dis-trr', (req, res) => {
       
  
-    const { MBI,  surname, firstname, effectiveDate, contractNumber, PBP, dob , genderCode, signatureDate } = req.body;
+    const { MBI,  surname, firstname, effectiveDate, contractNumber, PBP, dob , genderCode, signatureDate,effectiveDateDis } = req.body;
 
     // Format the effectiveDate and dob
     const formattedEffectiveDate = effectiveDate.replace(/-/g, ''); // Format date as YYYYMMDD
     const formattedDob = dob.replace(/-/g, ''); // Format date as YYYYMMDD
     const formattedSignatureDate = signatureDate.replace(/-/g,'');
-
+    const formattedeffectiveDateDis = effectiveDateDis.replace(/-/g,'');
     let fileContent = `2GP3GP4GP11 SWIFT       TAYLOR  119530402TH17482320000  01161 202501010010 202310230                               H1748   2023100601N00000000.0000000.00UJ N006Y 19.22.56.782491        000                                                           0000.00 0000.00 0000.00 0000.00                                                                    0000.00            ENROLL ACCEPTED                                                                                  Y             0317975024HCF054028567441\n`;
 
     // Replace values at the specified positions
@@ -166,6 +166,8 @@ app.post('/process-dis-trr', (req, res) => {
     fileContent = replaceAtPosition(fileContent, PBP, 71, 74);
     fileContent = replaceAtPosition(fileContent, genderCode, 32, 33);
     fileContent = replaceAtPosition(fileContent, formattedSignatureDate,75, 83);
+    fileContent = replaceAtPosition(fileContent, formattedSignatureDate,84, 92);
+
 
     // Save the file content to a .txt file
     const filePath = path.join(__dirname, 'trr.txt');
