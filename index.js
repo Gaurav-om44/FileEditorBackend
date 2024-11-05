@@ -167,6 +167,7 @@ app.post('/process-dis-trr', (req, res) => {
     fileContent = replaceAtPosition(fileContent, genderCode, 32, 33);
     fileContent = replaceAtPosition(fileContent, formattedSignatureDate,75, 83);
     fileContent = replaceAtPosition(fileContent, formattedSignatureDate,84, 92);
+    fileContent = replaceAtPosition(fileContent, formattedSignatureDate,84, 92);
 
 
     // Save the file content to a .txt file
