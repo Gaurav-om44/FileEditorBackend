@@ -57,27 +57,56 @@ function replaceFields(sourceContent, targetContent, frontEndData) {
     const sourceLines = sourceContent.split('\n');
     const targetLines = targetContent.split('\n');
 
-    const field1 = sourceLines[0].substring(16, 34).trim();
-    const field2 = sourceLines[1].substring(5, 42).trim();
-    const field3 = sourceLines[2].substring(16, 41).trim();
-    const field4 = sourceLines[0].substring(24, 34).trim();
-    const field5 = sourceLines[1].substring(5, 17).trim();
+    const header = sourceLines[0].substring(16, 34).trim();
+    const footer = sourceLines[sourceLines.length-2].substring(16, 41).trim();
+    targetLines[0] = targetLines[0].substring(0, 16) + header + targetLines[0].substring(33);
+    targetLines[sourceLines.length-2] = targetLines[2].substring(0, 16) + footer + targetLines[2].substring(41);
+
+    for( i = 1; i < sourceLines.length-2; i++ )
+    {
+        const field2 = sourceLines[i].substring(5, 42).trim();
+        const field4 = sourceLines[0].substring(24, 34).trim();
+        const field5 = sourceLines[i].substring(5, 17).trim();
+        targetLines[i] = targetLines[1].substring(0, 8) + field2 + targetLines[1].substring(45);
+        targetLines[i] = targetLines[i].substring(0, 248) + field4 + targetLines[i].substring(257);
+        targetLines[i] = targetLines[i].substring(0, 1555) + field5 + targetLines[i].substring(1568);
+
+    }
 
     const field6 = frontEndData.FirstName || "";
     const field7 = frontEndData.LastName || "";
 
-    targetLines[0] = targetLines[0].substring(0, 16) + field1 + targetLines[0].substring(33);
-    targetLines[1] = targetLines[1].substring(0, 8) + field2 + targetLines[1].substring(45);
-    targetLines[2] = targetLines[2].substring(0, 16) + field3 + targetLines[2].substring(41);
-
-    targetLines[1] = targetLines[1].substring(0, 248) + field4 + targetLines[1].substring(257);
-    targetLines[1] = targetLines[1].substring(0, 1555) + field5 + targetLines[1].substring(1568);
-
+    if(field6 !== field7){
     targetLines[1] = targetLines[1].substring(0, 632) + field7 + targetLines[1].substring(field7.length + 632);
     targetLines[1] = targetLines[1].substring(0, 672) + field6 + targetLines[1].substring(field6.length + 672);
+    }
 
     return targetLines.join('\n');
 }
+
+app.post('/process-stack-Beqr', upload.fields([{ name: 'sourceFile' }, { name: 'targetFile' }]), (req, res) => {
+    const sourceFilePath = req.files['sourceFile'][0].path;
+    const targetFilePath = req.files['targetFile'][0].path;
+
+    const frontEndData = {
+        FirstName: "",
+        LastName: ""
+    };
+
+    const sourceContent = fs.readFileSync(sourceFilePath, 'utf-8');
+    const targetContent = fs.readFileSync(targetFilePath, 'utf-8');
+    
+    const newContent = replaceFields(sourceContent, targetContent, frontEndData);
+
+    // Set headers for file download
+    res.setHeader('Content-Disposition', 'attachment; filename="updated_target.txt"');
+    res.setHeader('Content-Type', 'text/plain');
+    res.send(newContent);
+
+    // Clean up uploaded files
+    fs.unlinkSync(sourceFilePath);
+    fs.unlinkSync(targetFilePath);
+});
 
 // Endpoint to handle file uploads and processing
 app.post('/process-Beqr', upload.fields([{ name: 'sourceFile' }, { name: 'targetFile' }]), (req, res) => {
@@ -154,7 +183,7 @@ app.post('/process-dis-trr', (req, res) => {
     const formattedDob = dob.replace(/-/g, ''); // Format date as YYYYMMDD
     const formattedSignatureDate = signatureDate.replace(/-/g,'');
     const formattedeffectiveDateDis = effectiveDateDis.replace(/-/g,'');
-    let fileContent = `2GP3GP4GP11 SWIFT       TAYLOR  119530402TH17482320000  01161 202501010010 202310230                               H1748   2023100601N00000000.0000000.00UJ N006Y 19.22.56.782491        000                                                           0000.00 0000.00 0000.00 0000.00                                                                    0000.00            ENROLL ACCEPTED                                                                                  Y             0317975024HCF054028567441\n`;
+    let fileContent = `1GP2GP3GP44 REEVS       KANU   F120251223Th16782320000  01351 202512230001 20231023020240423                       H1748   2023100601N00000000.0000000.00UJ N006Y 19.22.56.782491        000                                                           0000.00 0000.00 0000.00 0000.00                                                                    0000.00            DISENROLL ACCEPTED                                                                               Y             0317975024HCF054028567441\n`;
 
     // Replace values at the specified positions
     fileContent = replaceAtPosition(fileContent, MBI, 0, 11);
